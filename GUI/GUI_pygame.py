@@ -2,6 +2,7 @@ import pygame
 from main_menu import MainMenu
 import webbrowser
 from Game_scene_sprite import *
+# s
 """holds the main loop that updates the pygame window, buttons, main menu, etc."""
 class PyGameGUI:
     def __init__(self, game_screen):
