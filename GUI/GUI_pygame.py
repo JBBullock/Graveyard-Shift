@@ -1,11 +1,11 @@
 import pygame
 
-from GUI.Game_scene_sprite import TankSprite
+from GUI.Game_scene_sprite import *
 from main_menu import MainMenu
 import webbrowser
 from Game_scene_sprite import *
-# s
-"""holds the main loop that updates the pygame window, buttons, main menu, etc."""
+
+"""Housing the main game loop, updates the general game window"""
 class PyGameGUI:
     def __init__(self, game_screen):
         self.game_screen = game_screen
@@ -16,35 +16,40 @@ class PyGameGUI:
         self.in_menu = True
         self.world_choices = self.crossroads_init()
         self.sprite = TankSprite(self.game_screen)
+        self.zombie = ZombieSprite(self.game_screen)
 
+    """Takes user to web portfolio"""
     def portfolio(self):
         webbrowser.open("https://johnatonbullock1.wixsite.com/johnatonbullock")
 
+    """Creates the object for different game states"""
     def crossroads_init(self):
         world_choices = GameScreen(self.game_screen)
 
         return world_choices
-
+    """Fades out whichever state the user is in """
     def crossroads_fade(self):
         self.world_choices.gaming_fade_in()
 
-
+    """The main game arena, e.g. level 1"""
     def arena_load_in(self):
         self.world_choices.game_arena()
-
-    def game_loop(self, main_menu, event):
+    """Updates the position of the tank, based on user input passed from main()"""
+    def game_movement(self, main_menu, event):
         if not self.arena:
             self.world_choices.gaming_scene()
 
         else:
             self.arena_load_in()
+            self.zombie.spawn_zombie()
+
         sprite_x, sprite_y = self.sprite.sprite_coords()
         if self.gaming_time:
             self.crossroads_fade()
             self.gaming_time = False
 
         if event.type == pygame.KEYDOWN:
-            if self.in_menu is False:
+            if self.in_menu is False and not self.arena:
                 if sprite_y > 0:
                     self.resume_pop_up = False
                 if sprite_x > 930:
@@ -58,12 +63,13 @@ class PyGameGUI:
                     else:
                         self.sprite._x = 900
                 if sprite_y > 930:
-                    if not self.arena:
-                        self.resume_pop_up = False
-                        self.portfolio()
+
+                    self.resume_pop_up = False
+                    self.portfolio()
                     self.sprite._y = -25
                 if 0 > sprite_y:
-                    self.resume_pop_up = True
+                    if not self.arena:
+                        self.resume_pop_up = True
                     if sprite_y < -30:
                         self.sprite._y = 931
 
@@ -81,11 +87,35 @@ class PyGameGUI:
                 elif event.key == pygame.K_RIGHT:
                     self.sprite.going_right()
                     self.sprite._x += 15
-        self.sprite.sprite_movement()
+            elif self.arena:
+                if event.key == pygame.K_ESCAPE:
+                    self.in_menu = True
+                elif event.key == pygame.K_UP:
+                    self.sprite.going_up()
+                    if self.sprite._y > 110:
+                        self.sprite._y -= 15
+                elif event.key == pygame.K_DOWN:
+                    self.sprite.going_down()
+                    if self.sprite._y < 800:
+                        self.sprite._y += 15
+                elif event.key == pygame.K_LEFT:
+                    self.sprite.going_left()
+                    if self.sprite._x > 105:
+                        self.sprite._x -= 15
+                elif event.key == pygame.K_RIGHT:
+                    self.sprite.going_right()
+                    if self.sprite._x < 800:
+                        self.sprite._x += 15
 
-    def main_screen(self):
+        self.sprite.sprite_movement()
+        # if self.arena:
+        #     self.zombie.spawn_zombie()
+    """The main loop of the game, receives input, updates the main game window every 60 frames"""
+    def main(self):
         play = None
         quit_button = None
+
+        pygame.time.set_timer(self.zombie.spawn_event, self.zombie.spawn_timer)
 
 
         main_menu = MainMenu(self.game_screen)
@@ -116,9 +146,13 @@ class PyGameGUI:
                             pygame.quit()
                             quit()
                 elif event.type == pygame.KEYDOWN and not self.in_menu:
-                    self.game_loop(main_menu, event)
+                    self.game_movement(main_menu, event)
+                if event.type == self.zombie.spawn_event and self.arena:
+                    self.zombie.spawn_zombie()
             pygame.display.update()
             relo.tick(60)
+
+    """Displays my resume in a form scroll with pixel font"""
     def resume_scroll(self):
         text_list = list()
 
@@ -145,19 +179,14 @@ class PyGameGUI:
         self.game_screen.blit(scroll_image, scroll_rect)
         for text, rect in zip(GUI_text, text_rects):
             self.game_screen.blit(text, rect)
-# def new_surface():
-#     some_canvas = pygame.Surface((900, 900))
-#     some_canvas.fill("Yellow")
-#     return some_canvas
 
 
 
+"""Starts the program"""
 if __name__ == '__main__':
     pygame.init()
     relo = pygame.time.Clock()
     screen = pygame.display.set_mode((900, 900))
     ignition_key = PyGameGUI(screen)
-    ignition_key.main_screen()
+    ignition_key.main()
 
-
-"""Operation: Graveyard Shift tank vs zombie game, forest setting, each zombie has info about me, after all the info, user can keep playing"""

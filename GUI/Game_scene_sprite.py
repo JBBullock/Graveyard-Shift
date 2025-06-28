@@ -1,12 +1,15 @@
 import pygame
-from main_menu import MainMenu
-import math
+from random import randint
+
 class GameScreen:
+    """creates the first canvas on the game window, all black"""
     def __init__(self, screen):
         self.screen = screen
         self.canvas = pygame.Surface((900, 900))
         self.canvas.fill("Black")
         self.canvas.set_alpha(0)
+        self.arena = pygame.image.load("Images/arena-shift.png").convert_alpha()
+
 
     def gaming_scene(self):
         pygame.display.set_caption("Graveyard Shift")
@@ -42,8 +45,7 @@ class GameScreen:
         return alpha >= 255
 
     def game_arena(self):
-        arena = pygame.image.load("Images/arena-shift.png").convert_alpha()
-        self.screen.blit(pygame.transform.scale(arena, (900, 900)), (0, 0))
+        self.screen.blit(pygame.transform.scale(self.arena, (900, 900)), (0, 0))
 
 class TankSprite(GameScreen, pygame.sprite.Sprite):
     def __init__(self, game_display):
@@ -87,7 +89,34 @@ class TankSprite(GameScreen, pygame.sprite.Sprite):
         tank_rect = self.tank.get_rect(center = (self._x, self._y))
         self.screen.blit(self.tank, tank_rect)
 
+class ZombieSprite(GameScreen, pygame.sprite.Sprite):
+
+    def __init__(self, game_display):
+        super().__init__(game_display)
+        self.spawn_timer = 3000
+        self.spawn_event = pygame.USEREVENT + 1
+        self.zombie_movement_frames = list()
+
+    def zombie_sprite(self):
+        idle_zombie = pygame.image.load("Images/IdleZombie.png").convert_alpha()
+        scale_zombie = pygame.transform.scale(idle_zombie, (50, 50))
+        idle_rect = scale_zombie.get_rect(center=(randint(445, 455), randint(900, 1100)))
+        return scale_zombie, idle_rect
+    def zombie_sprite_walk(self):
+        walk_zombie = pygame.image.load("Images/WalkZombie.png").convert_alpha()
+        return walk_zombie
+    def zombie_movement_list(self, idle_rect):
+        self.zombie_movement_frames.append(idle_rect)
+        return self.zombie_movement_frames
+    def spawn_zombie(self):
+        z_image, z_rect = self.zombie_sprite()
+        rect_list = self.zombie_movement_list(z_rect)
+        for rect in rect_list:
+            rect.y -= 5
+            self.screen.blit(z_image, rect)
+        return rect_list
 
 
 
-__all__ = ["GameScreen"]
+
+__all__ = ["GameScreen", "TankSprite", "ZombieSprite"]

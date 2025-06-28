@@ -12,7 +12,7 @@ class MainMenu:
         self.author_title = None
         self.play_button = None
         self.quit_button = None
-
+    """This creates the main menu screen"""
     def menu_load_up(self):
         title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
         pygame.display.set_caption("Main Menu")
@@ -24,7 +24,7 @@ class MainMenu:
         self.game_screen.blit(self.title, (300, 100))
         self.game_screen.blit(self.author_title, (250, 800))
 
-
+    """The menu options, made into buttons, one starts and the other quits the game"""
     def menu_options(self, mouse_position):
         title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
         start_image = pygame.image.load("Images/Start.png").convert()
