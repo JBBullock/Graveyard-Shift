@@ -1,15 +1,13 @@
 import pygame
 from main_menu import MainMenu
+import math
 class GameScreen:
     def __init__(self, screen):
         self.screen = screen
         self.canvas = pygame.Surface((900, 900))
         self.canvas.fill("Black")
         self.canvas.set_alpha(0)
-        self._x_tank = 525
-        self._y_tank = 500
-    def sprite_coords(self):
-        return self._x_tank, self._y_tank
+
     def gaming_scene(self):
         pygame.display.set_caption("Graveyard Shift")
 
@@ -27,42 +25,69 @@ class GameScreen:
         play_st = play_tunnel.get_rect(center=(800, 450))
         menu_st = menu_tunnel.get_rect(center=(150, 450))
         portfolio_st = portfolio_tunnel.get_rect(center=(525, 700))
-        self.screen.blit( pygame.transform.scale(game_setting, (900, 900)), (0, 0))
+        self.screen.blit(pygame.transform.scale(game_setting, (900, 900)), (0, 0))
 
         self.screen.blit(resume_road_label, resume_rect)
         self.screen.blit(play_tunnel, play_st)
         self.screen.blit(menu_tunnel, menu_st)
         self.screen.blit(portfolio_tunnel_label, portfolio_st)
-
-
-
-    def sprite_movement(self, x_sprite, y_sprite, event_type):
-        tank_sprite = pygame.image.load("Images/PixelTank.png").convert_alpha()
-        moving_sprite = tank_sprite
-        if event_type == pygame.K_LEFT:
-            moving_sprite = pygame.transform.flip(moving_sprite, True, False)
-        elif event_type == pygame.K_RIGHT:
-            moving_sprite = tank_sprite
-        elif event_type == pygame.K_UP:
-            moving_sprite = pygame.transform.rotate(moving_sprite, 180)
-        elif event_type == pygame.K_DOWN:
-            moving_sprite = pygame.transform.rotate(moving_sprite, 90)
-        tank_sprite = pygame.transform.scale(tank_sprite, (150, 100))
-        tank_sprite_rect = tank_sprite.get_rect(midbottom=(x_sprite, y_sprite))
-        self.screen.blit(tank_sprite, tank_sprite_rect)
-
     def gaming_fade_in(self):
+
         alpha = self.canvas.get_alpha()
-        alpha = min(255, self.canvas.get_alpha() + 5)
+        alpha = min(255, self.canvas.get_alpha() + 3)
 
         self.canvas.set_alpha(alpha)
 
         self.screen.blit(self.canvas, (0, 0))
         return alpha >= 255
-    def gaming_fade_out(self):
-        main_menu = MainMenu(self.screen)
-        main_menu.menu_load_up()
-        pass
 
-# d
+    def game_arena(self):
+        arena = pygame.image.load("Images/arena-shift.png").convert_alpha()
+        self.screen.blit(pygame.transform.scale(arena, (900, 900)), (0, 0))
+
+class TankSprite(GameScreen, pygame.sprite.Sprite):
+    def __init__(self, game_display):
+        self.tank_sprite_image_load = pygame.image.load("Images/green_top_down.png")
+        self._x = 450
+        self._y = 450
+        self.tank_scale = pygame.transform.scale(self.tank_sprite_image_load, (350, 280))
+        self.tank = pygame.transform.rotate(self.tank_scale, 0)
+        self.flip = 0
+        super().__init__(game_display)
+
+    def going_right(self):
+        if self.flip != 270:
+            self.flip = 270
+            self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
+
+        return self.flip == 270
+    def going_up(self):
+        if self.flip != 0:
+            self.flip = 0
+            self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
+        return self.flip == 0
+        # self.tank = facing_up.get_rect(center=(self._x, self._y))
+    def going_down(self):
+        if self.flip != True:
+            self.flip = True
+            self.tank = pygame.transform.flip(self.tank_scale, False, True)
+        return self.flip == False
+        # self.tank = facing_down.get_rect(center=(self._x, self._y))
+    def going_left(self):
+        if self.flip != 90:
+            self.flip = 90
+            self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
+        return self.flip == 90
+        # self.tank = flipped_sprite_x.get_rect(center=(self._x, self._y))
+
+    def sprite_coords(self):
+        return self._x, self._y
+
+    def sprite_movement(self):
+        tank_rect = self.tank.get_rect(center = (self._x, self._y))
+        self.screen.blit(self.tank, tank_rect)
+
+
+
+
 __all__ = ["GameScreen"]

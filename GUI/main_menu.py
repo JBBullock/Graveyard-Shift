@@ -12,6 +12,7 @@ class MainMenu:
         self.author_title = None
         self.play_button = None
         self.quit_button = None
+
     def menu_load_up(self):
         title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
         pygame.display.set_caption("Main Menu")

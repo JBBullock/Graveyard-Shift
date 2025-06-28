@@ -1,4 +1,6 @@
 import pygame
+
+from GUI.Game_scene_sprite import TankSprite
 from main_menu import MainMenu
 import webbrowser
 from Game_scene_sprite import *
@@ -7,7 +9,116 @@ from Game_scene_sprite import *
 class PyGameGUI:
     def __init__(self, game_screen):
         self.game_screen = game_screen
+        self.arena = False
+        self.resume_pop_up = False
+        self.start_game = False
+        self.gaming_time = False
+        self.in_menu = True
+        self.world_choices = self.crossroads_init()
+        self.sprite = TankSprite(self.game_screen)
 
+    def portfolio(self):
+        webbrowser.open("https://johnatonbullock1.wixsite.com/johnatonbullock")
+
+    def crossroads_init(self):
+        world_choices = GameScreen(self.game_screen)
+
+        return world_choices
+
+    def crossroads_fade(self):
+        self.world_choices.gaming_fade_in()
+
+
+    def arena_load_in(self):
+        self.world_choices.game_arena()
+
+    def game_loop(self, main_menu, event):
+        if not self.arena:
+            self.world_choices.gaming_scene()
+
+        else:
+            self.arena_load_in()
+        sprite_x, sprite_y = self.sprite.sprite_coords()
+        if self.gaming_time:
+            self.crossroads_fade()
+            self.gaming_time = False
+
+        if event.type == pygame.KEYDOWN:
+            if self.in_menu is False:
+                if sprite_y > 0:
+                    self.resume_pop_up = False
+                if sprite_x > 930:
+                    if not self.arena:
+                        self.arena = True
+                    self.sprite._x = 0
+                if sprite_x < -2:
+                    if not self.arena:
+                        self.in_menu = True
+                        main_menu.menu_load_up()
+                    else:
+                        self.sprite._x = 900
+                if sprite_y > 930:
+                    if not self.arena:
+                        self.resume_pop_up = False
+                        self.portfolio()
+                    self.sprite._y = -25
+                if 0 > sprite_y:
+                    self.resume_pop_up = True
+                    if sprite_y < -30:
+                        self.sprite._y = 931
+
+                if event.key == pygame.K_ESCAPE:
+                    self.in_menu = True
+                elif event.key == pygame.K_UP:
+                    self.sprite.going_up()
+                    self.sprite._y -= 15
+                elif event.key == pygame.K_DOWN:
+                    self.sprite.going_down()
+                    self.sprite._y += 15
+                elif event.key == pygame.K_LEFT:
+                    self.sprite.going_left()
+                    self.sprite._x -= 15
+                elif event.key == pygame.K_RIGHT:
+                    self.sprite.going_right()
+                    self.sprite._x += 15
+        self.sprite.sprite_movement()
+
+    def main_screen(self):
+        play = None
+        quit_button = None
+
+
+        main_menu = MainMenu(self.game_screen)
+        main_menu.menu_load_up()
+        running = True
+
+        pygame.key.set_repeat(75, 100)
+        while running:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.in_menu:
+                play, quit_button = main_menu.menu_options(mouse_pos)
+            elif not self.in_menu:
+                if self.resume_pop_up:
+                    self.resume_scroll()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if play is not None and quit_button is not None:
+                        if play.button_clicked(mouse_pos):
+                            self.crossroads_fade()
+                            self.world_choices.gaming_scene()
+                            self.in_menu = False
+                            self.gaming_time = False
+                        if quit_button.button_clicked(mouse_pos):
+                            pygame.quit()
+                            quit()
+                elif event.type == pygame.KEYDOWN and not self.in_menu:
+                    self.game_loop(main_menu, event)
+            pygame.display.update()
+            relo.tick(60)
     def resume_scroll(self):
         text_list = list()
 
@@ -17,7 +128,7 @@ class PyGameGUI:
         with open('Images/Johnaton Bullock Resume.txt') as file:
             f_contents = file.readlines()
             for line in f_contents:
-                text_list.append(line.strip())
+                text_list.append(line.strip('\n'))
 
         resume_text_font = pygame.font.Font("Fonts/Purl.ttf", 18)
         for text in text_list:
@@ -34,91 +145,10 @@ class PyGameGUI:
         self.game_screen.blit(scroll_image, scroll_rect)
         for text, rect in zip(GUI_text, text_rects):
             self.game_screen.blit(text, rect)
-
-    def portfolio(self):
-        webbrowser.open("https://johnatonbullock1.wixsite.com/johnatonbullock")
-
-    def main_screen(self, sprite_x = 0, sprite_y = 0):
-        # pygame.display.set_caption("Johnaton Bullock's: Graveyard Shift")
-        play = None
-        quit_button = None
-
-
-        main_menu = MainMenu(self.game_screen)
-        main_menu.menu_load_up()
-        running = True
-        resume_pop_up = False
-        start_game = False
-        gaming_time = False
-        in_menu = True
-        world_choices = None
-        py_event = None
-        while running:
-            mouse_pos = pygame.mouse.get_pos()
-            if in_menu:
-                play, quit_button = main_menu.menu_options(mouse_pos)
-
-
-            pygame.key.set_repeat(100, 100)
-            for event in pygame.event.get():
-                py_event = event
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if play is not None and quit_button is not None:
-                        if play.button_clicked(mouse_pos):
-                            world_choices = GameScreen(self.game_screen)
-                            sprite_x, sprite_y = world_choices.sprite_coords()
-                            start_game = True
-                            in_menu = False
-                        if quit_button.button_clicked(mouse_pos):
-                            pygame.quit()
-                            quit()
-                elif event.type == pygame.KEYDOWN:
-                    if in_menu is False:
-                        if sprite_y > 0:
-                            resume_pop_up = False
-                        if sprite_x > 930: sprite_x = 0
-                        if sprite_x < -2:
-                            in_menu = True
-                            main_menu.menu_load_up()
-                        if sprite_y > 930:
-                            resume_pop_up = False
-                            self.portfolio()
-                            sprite_y = -25
-                        if  0 > sprite_y:
-                            resume_pop_up = True
-                            if sprite_y < -30:
-                                sprite_y = 931
-                        if event.key == pygame.K_ESCAPE:
-                            in_menu = True
-                        if event.key == pygame.K_UP:
-
-                            sprite_y -= 10
-                        elif event.key == pygame.K_DOWN:
-                            sprite_y += 10
-                        elif event.key == pygame.K_LEFT:
-                            sprite_x -= 17
-                        elif event.key == pygame.K_RIGHT:
-                            sprite_x += 17
-            if start_game and in_menu is False:
-                if world_choices.gaming_fade_in():
-                    world_choices.gaming_scene()
-                    gaming_time = True
-            if gaming_time and in_menu is False:
-                world_choices.sprite_movement(sprite_x, sprite_y, py_event)
-            if resume_pop_up and in_menu is False:
-                self.resume_scroll()
-
-
-            pygame.display.update()
-            relo.tick(60)
-
-def new_surface():
-    some_canvas = pygame.Surface((900, 900))
-    some_canvas.fill("Yellow")
-    return some_canvas
+# def new_surface():
+#     some_canvas = pygame.Surface((900, 900))
+#     some_canvas.fill("Yellow")
+#     return some_canvas
 
 
 
