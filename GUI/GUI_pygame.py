@@ -1,5 +1,5 @@
 import pygame
-
+from Buttons import Button
 from GUI.Game_scene_sprite import *
 from main_menu import MainMenu
 import webbrowser
@@ -17,6 +17,8 @@ class PyGameGUI:
         self.world_choices = self.crossroads_init()
         self.sprite = TankSprite(self.game_screen)
         self.zombie = ZombieSprite(self.game_screen)
+        self.game_view = "MENU"
+        self.main_menu = MainMenu(self.game_screen)
 
     """Takes user to web portfolio"""
     def portfolio(self):
@@ -36,119 +38,138 @@ class PyGameGUI:
         self.world_choices.game_arena()
     """Updates the position of the tank, based on user input passed from main()"""
     def game_movement(self, main_menu, event):
-        if not self.arena:
-            self.world_choices.gaming_scene()
-
-        else:
-            self.arena_load_in()
-            self.zombie.spawn_zombie()
-
-        sprite_x, sprite_y = self.sprite.sprite_coords()
-        if self.gaming_time:
-            self.crossroads_fade()
-            self.gaming_time = False
+        # if not self.arena:
+        #     self.world_choices.gaming_scene()
+        #
+        # if self.gaming_time:
+        #     self.crossroads_fade()
+        #     self.gaming_time = False
 
         if event.type == pygame.KEYDOWN:
-            if self.in_menu is False and not self.arena:
-                if sprite_y > 0:
-                    self.resume_pop_up = False
-                if sprite_x > 930:
-                    if not self.arena:
-                        self.arena = True
-                    self.sprite._x = 0
-                if sprite_x < -2:
-                    if not self.arena:
-                        self.in_menu = True
-                        main_menu.menu_load_up()
-                    else:
-                        self.sprite._x = 900
-                if sprite_y > 930:
+            if event.key == pygame.K_ESCAPE:
+                self.in_menu = True
+            elif event.key == pygame.K_UP:
+                self.sprite.up = True
+            elif event.key == pygame.K_DOWN:
+                self.sprite.down = True
+            elif event.key == pygame.K_LEFT:
+                self.sprite.left = True
+            elif event.key == pygame.K_RIGHT:
+                self.sprite.right = True
 
-                    self.resume_pop_up = False
-                    self.portfolio()
-                    self.sprite._y = -25
-                if 0 > sprite_y:
-                    if not self.arena:
-                        self.resume_pop_up = True
-                    if sprite_y < -30:
-                        self.sprite._y = 931
+    # def setup_menu_buttons(self):
+    #     font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
+    #     play_button = Button((400, 300), "Play", font, (255, 255, 255), (0, 255, 0))
+    #     quit_button = Button((400, 400), "Quit", font, (255, 255, 255), (255, 0, 0))
+    #     return play_button, quit_button
 
-                if event.key == pygame.K_ESCAPE:
-                    self.in_menu = True
-                elif event.key == pygame.K_UP:
-                    self.sprite.going_up()
-                    self.sprite._y -= 15
-                elif event.key == pygame.K_DOWN:
-                    self.sprite.going_down()
-                    self.sprite._y += 15
-                elif event.key == pygame.K_LEFT:
-                    self.sprite.going_left()
-                    self.sprite._x -= 15
-                elif event.key == pygame.K_RIGHT:
-                    self.sprite.going_right()
-                    self.sprite._x += 15
-            elif self.arena:
-                if event.key == pygame.K_ESCAPE:
-                    self.in_menu = True
-                elif event.key == pygame.K_UP:
-                    self.sprite.going_up()
-                    if self.sprite._y > 110:
-                        self.sprite._y -= 15
-                elif event.key == pygame.K_DOWN:
-                    self.sprite.going_down()
-                    if self.sprite._y < 800:
-                        self.sprite._y += 15
-                elif event.key == pygame.K_LEFT:
-                    self.sprite.going_left()
-                    if self.sprite._x > 105:
-                        self.sprite._x -= 15
-                elif event.key == pygame.K_RIGHT:
-                    self.sprite.going_right()
-                    if self.sprite._x < 800:
-                        self.sprite._x += 15
-
-        self.sprite.sprite_movement()
-        # if self.arena:
-        #     self.zombie.spawn_zombie()
     """The main loop of the game, receives input, updates the main game window every 60 frames"""
     def main(self):
-        play = None
-        quit_button = None
 
+        """ FIX BUTTONS"""
         pygame.time.set_timer(self.zombie.spawn_event, self.zombie.spawn_timer)
 
 
-        main_menu = MainMenu(self.game_screen)
-        main_menu.menu_load_up()
+        # main_menu.menu_load_up()
         running = True
+        play, quit_button =  None, None
 
         pygame.key.set_repeat(75, 100)
         while running:
             mouse_pos = pygame.mouse.get_pos()
             if self.in_menu:
-                play, quit_button = main_menu.menu_options(mouse_pos)
-            elif not self.in_menu:
+                play, quit_button = self.main_menu.menu_options(mouse_pos)
+                self.main_menu.menu_load_up()
+                play, quit_button = self.main_menu.menu_options(mouse_pos)
+            if not self.in_menu:
                 if self.resume_pop_up:
                     self.resume_scroll()
 
+
+
             for event in pygame.event.get():
+                # play, quit_button = main_menu.menu_options(mouse_pos)
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if play is not None and quit_button is not None:
-                        if play.button_clicked(mouse_pos):
-                            self.crossroads_fade()
-                            self.world_choices.gaming_scene()
-                            self.in_menu = False
-                            self.gaming_time = False
-                        if quit_button.button_clicked(mouse_pos):
-                            pygame.quit()
-                            quit()
-                elif event.type == pygame.KEYDOWN and not self.in_menu:
-                    self.game_movement(main_menu, event)
-                if event.type == self.zombie.spawn_event and self.arena:
-                    self.zombie.spawn_zombie()
+                # if self.game_view == "MENU":
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.in_menu:
+                        if play is not None and quit_button is not None:
+                            print(play.button_clicked(mouse_pos))
+                            print(quit_button.button_clicked(mouse_pos))
+
+                            if play.button_clicked(mouse_pos):
+                                # self.game_view = "GAME"
+                                self.in_menu = False
+                                self.gaming_time = True
+
+                            if quit_button.button_clicked(mouse_pos):
+                                pygame.quit()
+                                quit()
+                # elif self.game_view == "GAME":
+                if event.type == pygame.KEYDOWN:
+                    self.game_movement(self.main_menu, event)
+
+
+            if not self.arena and not self.in_menu:
+
+                if self.sprite.x > 930:
+                    self.arena = True
+                    self.sprite.x = 0
+                elif self.sprite.x < -2:
+                    self.in_menu = True
+                    self.game_view = "MENU"
+                    self.main_menu = MainMenu(self.game_screen)
+                    # main_menu.menu_load_up()
+
+
+                if 0 < self.sprite.y < 800:
+                    self.resume_pop_up = False
+
+                if self.sprite.y > 930:
+                    self.resume_pop_up = False
+                    self.portfolio()
+                    self.sprite.y = -25
+                elif 0 > self.sprite.y:
+                    self.resume_pop_up = True
+                    if self.sprite.y < -30:
+                        self.sprite.y = 925
+                if self.sprite.up:
+                    self.sprite.going_up()
+                elif self.sprite.down:
+                    self.sprite.going_down()
+                elif self.sprite.left:
+                    self.sprite.going_left()
+                elif self.sprite.right:
+                    self.sprite.going_right()
+
+            if self.arena and not self.in_menu:
+
+                if self.sprite.up:
+                    if self.sprite.y > 110:
+                        self.sprite.going_up()
+                elif self.sprite.down:
+
+                    if self.sprite.y < 800:
+                        self.sprite.going_down()
+                elif self.sprite.left:
+                    if self.sprite.x > 90:
+                        self.sprite.going_left()
+                elif self.sprite.right:
+                    if self.sprite.x < 800:
+                        self.sprite.going_right()
+            # if self.in_menu and not self.gaming_time:
+            #
+            #     self.world_choices.gaming_scene()
+            if self.game_view == "GAME":
+                self.world_choices.gaming_scene()
+                self.sprite.sprite_movement()
+            if self.arena and not self.in_menu:
+                self.arena_load_in()
+                self.sprite.sprite_movement()
             pygame.display.update()
             relo.tick(60)
 

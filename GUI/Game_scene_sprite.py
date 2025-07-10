@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+from random import choice
 
 class GameScreen:
     """creates the first canvas on the game window, all black"""
@@ -47,74 +48,105 @@ class GameScreen:
     def game_arena(self):
         self.screen.blit(pygame.transform.scale(self.arena, (900, 900)), (0, 0))
 
+
 class TankSprite(GameScreen, pygame.sprite.Sprite):
     def __init__(self, game_display):
         self.tank_sprite_image_load = pygame.image.load("Images/green_top_down.png")
-        self._x = 450
-        self._y = 450
+        self.x = 450
+        self.y = 450
         self.tank_scale = pygame.transform.scale(self.tank_sprite_image_load, (350, 280))
         self.tank = pygame.transform.rotate(self.tank_scale, 0)
         self.flip = 0
+        self.right = False
+        self.left = False
+        self.up = False
+        self.down = False
         super().__init__(game_display)
 
     def going_right(self):
+        self.x += 15
         if self.flip != 270:
             self.flip = 270
             self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
-
+        self.right = False
         return self.flip == 270
     def going_up(self):
+
+        self.y -= 15
+
         if self.flip != 0:
             self.flip = 0
             self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
+        self.up = False
         return self.flip == 0
         # self.tank = facing_up.get_rect(center=(self._x, self._y))
     def going_down(self):
-        if self.flip != True:
+        self.y += 15
+        if self.flip is not True:
             self.flip = True
             self.tank = pygame.transform.flip(self.tank_scale, False, True)
+        self.down = False
         return self.flip == False
         # self.tank = facing_down.get_rect(center=(self._x, self._y))
     def going_left(self):
+        self.x -= 15
         if self.flip != 90:
             self.flip = 90
             self.tank = pygame.transform.rotate(self.tank_scale, self.flip)
+        self.left = False
         return self.flip == 90
         # self.tank = flipped_sprite_x.get_rect(center=(self._x, self._y))
 
     def sprite_coords(self):
-        return self._x, self._y
+        return self.x, self.y
 
     def sprite_movement(self):
-        tank_rect = self.tank.get_rect(center = (self._x, self._y))
+        tank_rect = self.tank.get_rect(center = (self.x, self.y))
         self.screen.blit(self.tank, tank_rect)
 
 class ZombieSprite(GameScreen, pygame.sprite.Sprite):
 
     def __init__(self, game_display):
         super().__init__(game_display)
-        self.spawn_timer = 3000
+        self.spawn_timer = 2000
         self.spawn_event = pygame.USEREVENT + 1
-        self.zombie_movement_frames = list()
+        self.zombie_horde = list()
+        self.zombie_start_x = 500
+        self.zombie_start_y = 940
 
     def zombie_sprite(self):
         idle_zombie = pygame.image.load("Images/IdleZombie.png").convert_alpha()
         scale_zombie = pygame.transform.scale(idle_zombie, (50, 50))
-        idle_rect = scale_zombie.get_rect(center=(randint(445, 455), randint(900, 1100)))
-        return scale_zombie, idle_rect
+        zombie_rect = scale_zombie.get_rect(center = (self.zombie_start_x, self.zombie_start_y))
+        if self.zombie_start_x >= 400:
+            self.zombie_start_x -= 70
+        else:
+            self.zombie_start_x = 500
+        return scale_zombie, zombie_rect
     def zombie_sprite_walk(self):
         walk_zombie = pygame.image.load("Images/WalkZombie.png").convert_alpha()
         return walk_zombie
-    def zombie_movement_list(self, idle_rect):
-        self.zombie_movement_frames.append(idle_rect)
-        return self.zombie_movement_frames
+
     def spawn_zombie(self):
         z_image, z_rect = self.zombie_sprite()
-        rect_list = self.zombie_movement_list(z_rect)
-        for rect in rect_list:
-            rect.y -= 5
-            self.screen.blit(z_image, rect)
-        return rect_list
+        self.zombie_horde.append([z_image, z_rect])
+        for rect in self.zombie_horde:
+
+            rect[1].y -= 10
+            self.screen.blit(rect[0], rect[1])
+            pygame.display.update(rect[1])
+
+
+
+
+    # def draw_zombie(self, zombie, zombie_rect):
+    #     self.screen.blit(zombie, zombie_rect)
+    #     self.screen.update()
+
+
+
+
+
 
 
 
