@@ -10,31 +10,32 @@ class GameScreen:
         self.canvas.fill("Black")
         self.canvas.set_alpha(0)
         self.arena = pygame.image.load("Images/arena-shift.png").convert_alpha()
-
-
-    def gaming_scene(self):
         pygame.display.set_caption("Graveyard Shift")
 
-        title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
-        resume_tunnel = title_font.render("Resume", True, "White")
-        play_tunnel = title_font.render("Play", True, "White")
-        menu_tunnel = title_font.render("Main Menu", True, "White")
-        portfolio_tunnel = title_font.render("Portfolio", True, "White")
+        self.title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
+        self.resume_tunnel = self.title_font.render("Resume", True, "White")
+        self.play_tunnel = self.title_font.render("Play", True, "White")
+        self.menu_tunnel = self.title_font.render("Main Menu", True, "White")
+        self.portfolio_tunnel = self.title_font.render("Portfolio", True, "White")
+        self.game_setting = pygame.image.load('Images/Platform.png').convert()
+
+    def gaming_scene(self):
+
         # pygame.transform.flip(resume_tunnel, True, True)
 
-        resume_road_label = pygame.transform.rotate(resume_tunnel, 90)
-        portfolio_tunnel_label = pygame.transform.rotate(portfolio_tunnel, 90)
-        game_setting = pygame.image.load('Images/Platform.png').convert()
-        resume_rect = resume_road_label.get_rect(center = (450, 100))
-        play_st = play_tunnel.get_rect(center=(800, 450))
-        menu_st = menu_tunnel.get_rect(center=(150, 450))
-        portfolio_st = portfolio_tunnel.get_rect(center=(525, 700))
-        self.screen.blit(pygame.transform.scale(game_setting, (900, 900)), (0, 0))
+        resume_road_label = pygame.transform.rotate(self.resume_tunnel, 90)
+        portfolio_tunnel_label = pygame.transform.rotate(self.portfolio_tunnel, 90)
 
+        resume_rect = resume_road_label.get_rect(center = (450, 100))
+        play_st = self.play_tunnel.get_rect(center=(800, 450))
+        menu_st = self.menu_tunnel.get_rect(center=(150, 450))
+        portfolio_st = self.portfolio_tunnel.get_rect(center=(525, 700))
+        self.screen.blit(pygame.transform.scale(self.game_setting, (900, 900)), (0, 0))
         self.screen.blit(resume_road_label, resume_rect)
-        self.screen.blit(play_tunnel, play_st)
-        self.screen.blit(menu_tunnel, menu_st)
+        self.screen.blit(self.play_tunnel, play_st)
+        self.screen.blit(self.menu_tunnel, menu_st)
         self.screen.blit(portfolio_tunnel_label, portfolio_st)
+
     def gaming_fade_in(self):
 
         alpha = self.canvas.get_alpha()
@@ -46,6 +47,7 @@ class GameScreen:
         return alpha >= 255
 
     def game_arena(self):
+        self.screen.fill((0, 0, 0))
         self.screen.blit(pygame.transform.scale(self.arena, (900, 900)), (0, 0))
 
 
@@ -108,33 +110,38 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
 
     def __init__(self, game_display):
         super().__init__(game_display)
-        self.spawn_timer = 2000
+        self.spawn_timer = 900
         self.spawn_event = pygame.USEREVENT + 1
         self.zombie_horde = list()
-        self.zombie_start_x = 500
-        self.zombie_start_y = 940
+
+        self.zombie_image = pygame.image.load("Images/IdleZombie.png").convert_alpha()
+        self.zombie_image = pygame.transform.scale(self.zombie_image, (50, 50))
 
     def zombie_sprite(self):
-        idle_zombie = pygame.image.load("Images/IdleZombie.png").convert_alpha()
-        scale_zombie = pygame.transform.scale(idle_zombie, (50, 50))
-        zombie_rect = scale_zombie.get_rect(center = (self.zombie_start_x, self.zombie_start_y))
-        if self.zombie_start_x >= 400:
-            self.zombie_start_x -= 70
-        else:
-            self.zombie_start_x = 500
-        return scale_zombie, zombie_rect
+        zombie_start_x = randint(400, 500)
+        zombie_start_y = 950
+        zombie_rect = self.zombie_image.get_rect(center = (zombie_start_x, zombie_start_y))
+
+        # if self.zombie_start_x >= 400:
+        #     self.zombie_start_x -= 70
+        # else:
+        #     self.zombie_start_x = 500
+        return zombie_rect
     def zombie_sprite_walk(self):
         walk_zombie = pygame.image.load("Images/WalkZombie.png").convert_alpha()
         return walk_zombie
 
     def spawn_zombie(self):
-        z_image, z_rect = self.zombie_sprite()
-        self.zombie_horde.append([z_image, z_rect])
-        for rect in self.zombie_horde:
-
-            rect[1].y -= 10
-            self.screen.blit(rect[0], rect[1])
-            pygame.display.update(rect[1])
+        z_rect = self.zombie_sprite()
+        self.zombie_horde.append(z_rect)
+        updated_horde = []
+        for zombie_rectangle in self.zombie_horde:
+            zombie_rectangle.y -= 4
+            if zombie_rectangle.y > 375:
+                updated_horde.append(zombie_rectangle)
+                self.zombie_horde.remove(zombie_rectangle)
+            self.screen.blit(self.zombie_image, zombie_rectangle)
+        self.zombie_horde = updated_horde
 
 
 
