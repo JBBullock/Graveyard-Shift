@@ -1,9 +1,9 @@
 import pygame
 from Buttons import Button
-from GUI.Game_scene_sprite import *
+from GUI.Sprites_and_Scenes import *
 from main_menu import MainMenu
 import webbrowser
-from Game_scene_sprite import *
+from Sprites_and_Scenes import *
 
 """Housing the main game loop, updates the general game window"""
 class PyGameGUI:
@@ -109,6 +109,7 @@ class PyGameGUI:
         play, quit_button =  None, None
         pygame.key.set_repeat(75, 100)
         pygame.time.set_timer(self.zombie.spawn_event, self.zombie.spawn_timer)
+
         while running:
             mouse_pos = pygame.mouse.get_pos()
             """---event catching, clicking play or quit, going left, down, right, up---"""
@@ -176,7 +177,9 @@ class PyGameGUI:
                     self.arena_load_in()
                     self.sprite.sprite_movement()
                     if self.release_zombies:
+
                         self.zombie.spawn_zombie()
+
                     self.sprite.sprite_movement()
 
             pygame.display.update()

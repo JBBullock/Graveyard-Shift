@@ -1,6 +1,5 @@
 import pygame
 from random import randint
-from random import choice
 
 class GameScreen:
     """creates the first canvas on the game window, all black"""
@@ -110,50 +109,65 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
 
     def __init__(self, game_display):
         super().__init__(game_display)
-        self.spawn_timer = 900
+        self.spawn_timer = 100
         self.spawn_event = pygame.USEREVENT + 1
         self.zombie_horde = list()
 
         self.zombie_image = pygame.image.load("Images/IdleZombie.png").convert_alpha()
         self.zombie_image = pygame.transform.scale(self.zombie_image, (50, 50))
 
+        self.zombie_step = pygame.image.load("Images/WalkZombie.png").convert_alpha()
+        self.zombie_step = pygame.transform.scale(self.zombie_step, (50, 50))
+        self.zombie_index = 0
+
+        self.walk = [self.zombie_image, self.zombie_step]
+        self.spawn_delay = 60
+        self.spawn_counter = 0
+
     def zombie_sprite(self):
         zombie_start_x = randint(400, 500)
-        zombie_start_y = 950
+        zombie_start_y = 901
+        # self.zombie_image = self.walk[self.zombie_index]
         zombie_rect = self.zombie_image.get_rect(center = (zombie_start_x, zombie_start_y))
 
-        # if self.zombie_start_x >= 400:
-        #     self.zombie_start_x -= 70
-        # else:
-        #     self.zombie_start_x = 500
+
         return zombie_rect
-    def zombie_sprite_walk(self):
-        walk_zombie = pygame.image.load("Images/WalkZombie.png").convert_alpha()
-        return walk_zombie
+
+    def zombie_stepping(self):
+        self.zombie_index += 0.05
+        if self.zombie_index >= len(self.walk):
+            self.zombie_index = 0
+        self.zombie_image = self.walk[int(self.zombie_index)]
+
+
 
     def spawn_zombie(self):
-        z_rect = self.zombie_sprite()
-        self.zombie_horde.append(z_rect)
+
+        self.spawn_counter += 1
+        self.zombie_stepping()
+        if self.spawn_counter >= self.spawn_delay:
+            self.spawn_counter = 0
+            new_zombie = self.zombie_sprite()
+            self.zombie_horde.append(new_zombie)
+
+        # z_rect = self.zombie_sprite()
+        # self.zombie_horde.append(z_rect)
+        # # self.zombie_image = self.walk[self.zombie_index]
         updated_horde = []
         for zombie_rectangle in self.zombie_horde:
-            zombie_rectangle.y -= 4
+            zombie_rectangle.y -= float(0.7)
             if zombie_rectangle.y > 375:
                 updated_horde.append(zombie_rectangle)
-                self.zombie_horde.remove(zombie_rectangle)
+                # self.zombie_horde.remove(zombie_rectangle)
             self.screen.blit(self.zombie_image, zombie_rectangle)
         self.zombie_horde = updated_horde
 
-
-
-
-    # def draw_zombie(self, zombie, zombie_rect):
-    #     self.screen.blit(zombie, zombie_rect)
-    #     self.screen.update()
-
-
-
-
-
+class Bullet(GameScreen, pygame.sprite.Sprite):
+    def __init__(self, x, y, bullet_angle):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.angle = bullet_angle
 
 
 
