@@ -1,6 +1,5 @@
 import pygame
 from Buttons import Button
-from GUI.Sprites_and_Scenes import *
 from main_menu import MainMenu
 import webbrowser
 from Sprites_and_Scenes import *
@@ -19,6 +18,7 @@ class PyGameGUI:
         self.zombie = ZombieSprite(self.game_screen)
         self.main_menu = None
         self.release_zombies = False
+        self.bullets = pygame.sprite.Group()
 
     """Takes user to web portfolio"""
     def portfolio(self):
@@ -50,6 +50,9 @@ class PyGameGUI:
                 self.sprite.left = True
             elif event.key == pygame.K_RIGHT:
                 self.sprite.right = True
+            if event.key == pygame.K_SPACE and len(self.bullets) < 2:
+                bullet = Bullet(self.sprite.x, self.sprite.y, self.sprite.flip)
+                self.bullets.add(bullet)
 
 
     def world_crossroads_movement(self):
@@ -181,6 +184,14 @@ class PyGameGUI:
                         self.zombie.spawn_zombie()
 
                     self.sprite.sprite_movement()
+
+                    self.bullets.update()
+                    self.bullets.draw(self.game_screen)
+                    for bullet in self.bullets:
+                        for zombie_rect in self.zombie.zombie_horde:
+                            if bullet.rect.colliderect(zombie_rect):
+                                self.bullets.update()
+                                self.bullets.draw(screen)
 
             pygame.display.update()
             relo.tick(60)

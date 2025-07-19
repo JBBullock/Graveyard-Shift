@@ -104,6 +104,28 @@ class TankSprite(GameScreen, pygame.sprite.Sprite):
     def sprite_movement(self):
         tank_rect = self.tank.get_rect(center = (self.x, self.y))
         self.screen.blit(self.tank, tank_rect)
+    def fire_bullet(self):
+        tank_rect = self.tank.get_rect(center=(self.x, self.y))
+        direction = self.flip
+        x, y = self.sprite_coords()
+
+        if direction == 0:  # up
+            bullet_x = x
+            bullet_y = y
+        elif direction == 90:  # left
+            bullet_x = x
+            bullet_y = y
+        elif direction == 270:  # right
+            bullet_x = x
+            bullet_y = y
+        elif direction is True:  # down
+            bullet_x = x
+            bullet_y = y
+        else:  # fallback
+            bullet_x, bullet_y = x, y
+
+        return Bullet(bullet_x, bullet_y, direction)
+
 
 class ZombieSprite(GameScreen, pygame.sprite.Sprite):
 
@@ -150,26 +172,56 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
             new_zombie = self.zombie_sprite()
             self.zombie_horde.append(new_zombie)
 
-        # z_rect = self.zombie_sprite()
-        # self.zombie_horde.append(z_rect)
-        # # self.zombie_image = self.walk[self.zombie_index]
         updated_horde = []
         for zombie_rectangle in self.zombie_horde:
             zombie_rectangle.y -= float(0.7)
             if zombie_rectangle.y > 375:
                 updated_horde.append(zombie_rectangle)
-                # self.zombie_horde.remove(zombie_rectangle)
             self.screen.blit(self.zombie_image, zombie_rectangle)
         self.zombie_horde = updated_horde
 
-class Bullet(GameScreen, pygame.sprite.Sprite):
-    def __init__(self, x, y, bullet_angle):
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, direction):
         super().__init__()
-        self.x = x
-        self.y = y
-        self.angle = bullet_angle
+        self.direction = direction
+        self.speed = 10
+
+        # Base bullet image is horizontal (right-facing)
+        base_image = pygame.Surface((10, 4))
+        base_image.fill((255, 255, 0))
+
+        # Rotate bullet based on direction
+        if direction == 0:       # Up
+            self.image = pygame.transform.rotate(base_image, 90)
+        elif direction == 90:    # Left
+            self.image = pygame.transform.rotate(base_image, 180)
+        elif direction == 270:   # Right
+            self.image = base_image
+        elif direction is True:  # Down
+            self.image = pygame.transform.rotate(base_image, -90)
+        else:
+            self.image = base_image
+
+        self.rect = self.image.get_rect(center=(x, y))
+
+    def update(self):
+        if self.direction == 0:
+            self.rect.y -= self.speed
+        elif self.direction == 90:
+            self.rect.x -= self.speed
+        elif self.direction == 270:
+            self.rect.x += self.speed
+        elif self.direction is True:
+            self.rect.y += self.speed
+
+        # Remove bullet if off-screen
+        if not (0 <= self.rect.x <= 900 and 0 <= self.rect.y <= 900):
+            self.kill()
 
 
 
 
-__all__ = ["GameScreen", "TankSprite", "ZombieSprite"]
+
+
+
+__all__ = ["GameScreen", "TankSprite", "ZombieSprite", "Bullet"]
