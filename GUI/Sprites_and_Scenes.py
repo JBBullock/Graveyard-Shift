@@ -186,6 +186,7 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.speed = 10
 
+
         # Base bullet image is horizontal (right-facing)
         base_image = pygame.Surface((10, 4))
         base_image.fill((255, 255, 0))

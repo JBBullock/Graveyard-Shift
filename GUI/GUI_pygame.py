@@ -19,6 +19,9 @@ class PyGameGUI:
         self.main_menu = None
         self.release_zombies = False
         self.bullets = pygame.sprite.Group()
+        self.last_shot_time = 0  # track time in milliseconds
+        self.shoot_cooldown = 300
+        self.space_held = False
 
     """Takes user to web portfolio"""
     def portfolio(self):
@@ -37,22 +40,28 @@ class PyGameGUI:
     def arena_load_in(self):
         self.world_choices.game_arena()
     """Updates the position of the tank, based on user input passed from main()"""
-    def game_movement(self, main_menu, event):
+    def game_movement(self, event):
+        # print("game movement was called")
+        if event.key == pygame.K_ESCAPE:
+            self.in_menu = True
+        elif event.key == pygame.K_UP:
+            self.sprite.up = True
+        elif event.key == pygame.K_DOWN:
+            self.sprite.down = True
+        elif event.key == pygame.K_LEFT:
+            self.sprite.left = True
+        elif event.key == pygame.K_RIGHT:
+            self.sprite.right = True
+        elif event.key == pygame.K_SPACE and len(self.bullets) < 2:
+            current_time = pygame.time.get_ticks()
+            if not self.space_held:
+                if current_time - self.last_shot_time >= self.shoot_cooldown:
+                # print('fire one bullet')
+                    bullet = Bullet(self.sprite.x, self.sprite.y, self.sprite.flip)
+                    self.bullets.add(bullet)
+                    self.space_held = True
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.in_menu = True
-            elif event.key == pygame.K_UP:
-                self.sprite.up = True
-            elif event.key == pygame.K_DOWN:
-                self.sprite.down = True
-            elif event.key == pygame.K_LEFT:
-                self.sprite.left = True
-            elif event.key == pygame.K_RIGHT:
-                self.sprite.right = True
-            if event.key == pygame.K_SPACE and len(self.bullets) < 2:
-                bullet = Bullet(self.sprite.x, self.sprite.y, self.sprite.flip)
-                self.bullets.add(bullet)
+
 
 
     def world_crossroads_movement(self):
@@ -131,10 +140,13 @@ class PyGameGUI:
                         if quit_button.button_clicked(mouse_pos):
                             pygame.quit()
                             quit()
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_SPACE:
+                        self.space_held = False
                 if event.type == self.zombie.spawn_event:
                     self.release_zombies = True
                 if event.type == pygame.KEYDOWN:
-                    self.game_movement(self.main_menu, event)
+                    self.game_movement(event)
 
             """Movement of the tank sprite in the crossroads or arena"""
             if not self.in_menu:
