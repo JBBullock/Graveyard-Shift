@@ -1,5 +1,3 @@
-import pygame
-
 
 class Button:
     def __init__(self, pos,  text, font, base_color, hovering_color):
@@ -27,3 +25,5 @@ class Button:
             self.text = self.font.render(self.text_str, True, self.hovering_color)
         else:
             self.text = self.font.render(self.text_str, True, self.base_color)
+
+__all__ = ["Button"]

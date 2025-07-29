@@ -6,7 +6,7 @@ from Sprites_and_Scenes import *
 
 """Housing the main game loop, updates the general game window"""
 class PyGameGUI:
-    def __init__(self, game_screen):
+    def __init__(self, game_screen, reloj):
         self.game_screen = game_screen
         self.arena = False
         self.resume_pop_up = False
@@ -19,9 +19,11 @@ class PyGameGUI:
         self.main_menu = None
         self.release_zombies = False
         self.bullets = pygame.sprite.Group()
+        self.zombie_group = pygame.sprite.Group()
         self.last_shot_time = 0  # track time in milliseconds
         self.shoot_cooldown = 300
         self.space_held = False
+        self.relo = reloj
 
     """Takes user to web portfolio"""
     def portfolio(self):
@@ -195,18 +197,20 @@ class PyGameGUI:
 
                         self.zombie.spawn_zombie()
 
+
                     self.sprite.sprite_movement()
 
                     self.bullets.update()
                     self.bullets.draw(self.game_screen)
                     for bullet in self.bullets:
-                        for zombie_rect in self.zombie.zombie_horde:
+                        for zombie_rect in self.zombie.zombie_horde.copy():
                             if bullet.rect.colliderect(zombie_rect):
-                                self.bullets.update()
-                                self.bullets.draw(screen)
+                                bullet.kill()
+                                self.zombie.zombie_horde.remove(zombie_rect)
+                                break
 
             pygame.display.update()
-            relo.tick(60)
+            self.relo.tick(60)
 
     """Displays resume scroll"""
     def resume_scroll(self):
@@ -238,10 +242,9 @@ class PyGameGUI:
 
 
 """Starts the program"""
-if __name__ == '__main__':
+def main():
     pygame.init()
     relo = pygame.time.Clock()
     screen = pygame.display.set_mode((900, 900))
-    ignition_key = PyGameGUI(screen)
+    ignition_key = PyGameGUI(screen, relo)
     ignition_key.main()
-

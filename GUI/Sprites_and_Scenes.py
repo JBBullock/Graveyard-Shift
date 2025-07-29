@@ -152,6 +152,7 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
         # self.zombie_image = self.walk[self.zombie_index]
         zombie_rect = self.zombie_image.get_rect(center = (zombie_start_x, zombie_start_y))
 
+        zombie_rect.inflate_ip(-30, -30)
 
         return zombie_rect
 
@@ -180,6 +181,9 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
             self.screen.blit(self.zombie_image, zombie_rectangle)
         self.zombie_horde = updated_horde
 
+
+
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         super().__init__()
@@ -188,8 +192,10 @@ class Bullet(pygame.sprite.Sprite):
 
 
         # Base bullet image is horizontal (right-facing)
-        base_image = pygame.Surface((10, 4))
-        base_image.fill((255, 255, 0))
+        base_image = pygame.image.load("Images/tankammo.png").convert_alpha()
+        base_image = pygame.transform.scale(base_image, (100, 50))
+        print('bullet loaded successfully')
+        # base_image.fill((255, 255, 0))
 
         # Rotate bullet based on direction
         if direction == 0:       # Up
@@ -203,7 +209,8 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.image = base_image
 
-        self.rect = self.image.get_rect(center=(x, y))
+        self.rect = self.image.get_rect(center=((x - 3), (y-10)))
+        self.rect.inflate_ip(-30, -30)
 
     def update(self):
         if self.direction == 0:
@@ -218,11 +225,5 @@ class Bullet(pygame.sprite.Sprite):
         # Remove bullet if off-screen
         if not (0 <= self.rect.x <= 900 and 0 <= self.rect.y <= 900):
             self.kill()
-
-
-
-
-
-
 
 __all__ = ["GameScreen", "TankSprite", "ZombieSprite", "Bullet"]
