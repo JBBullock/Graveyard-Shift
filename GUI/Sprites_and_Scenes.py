@@ -8,15 +8,15 @@ class GameScreen:
         self.canvas = pygame.Surface((900, 900))
         self.canvas.fill("Black")
         self.canvas.set_alpha(0)
-        self.arena = pygame.image.load("Images/arena-shift.png").convert_alpha()
+        self.arena = pygame.image.load("../Images/arena-shift.png").convert_alpha()
         pygame.display.set_caption("Graveyard Shift")
 
-        self.title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
+        self.title_font = pygame.font.Font('../Fonts/KiwiSoda.ttf', 50)
         self.resume_tunnel = self.title_font.render("Resume", True, "White")
         self.play_tunnel = self.title_font.render("Play", True, "White")
         self.menu_tunnel = self.title_font.render("Main Menu", True, "White")
         self.portfolio_tunnel = self.title_font.render("Portfolio", True, "White")
-        self.game_setting = pygame.image.load('Images/Platform.png').convert()
+        self.game_setting = pygame.image.load('../Images/Platform.png').convert()
 
     def gaming_scene(self):
 
@@ -52,7 +52,7 @@ class GameScreen:
 
 class TankSprite(GameScreen, pygame.sprite.Sprite):
     def __init__(self, game_display):
-        self.tank_sprite_image_load = pygame.image.load("Images/green_top_down.png")
+        self.tank_sprite_image_load = pygame.image.load("../Images/green_top_down.png")
         self.x = 450
         self.y = 450
         self.tank_scale = pygame.transform.scale(self.tank_sprite_image_load, (350, 280))
@@ -135,10 +135,10 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
         self.spawn_event = pygame.USEREVENT + 1
         self.zombie_horde = list()
 
-        self.zombie_image = pygame.image.load("Images/IdleZombie.png").convert_alpha()
+        self.zombie_image = pygame.image.load("../Images/IdleZombie.png").convert_alpha()
         self.zombie_image = pygame.transform.scale(self.zombie_image, (50, 50))
 
-        self.zombie_step = pygame.image.load("Images/WalkZombie.png").convert_alpha()
+        self.zombie_step = pygame.image.load("../Images/WalkZombie.png").convert_alpha()
         self.zombie_step = pygame.transform.scale(self.zombie_step, (50, 50))
         self.zombie_index = 0
 
@@ -192,9 +192,8 @@ class Bullet(pygame.sprite.Sprite):
 
 
         # Base bullet image is horizontal (right-facing)
-        base_image = pygame.image.load("Images/tankammo.png").convert_alpha()
+        base_image = pygame.image.load("../Images/tankammo.png").convert_alpha()
         base_image = pygame.transform.scale(base_image, (100, 50))
-        print('bullet loaded successfully')
         # base_image.fill((255, 255, 0))
 
         # Rotate bullet based on direction

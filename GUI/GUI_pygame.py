@@ -206,6 +206,7 @@ class PyGameGUI:
                         for zombie_rect in self.zombie.zombie_horde.copy():
                             if bullet.rect.colliderect(zombie_rect):
                                 bullet.kill()
+                                self.zombie.zombie_image = pygame.image.load('../Images/DeadZombie.png')
                                 self.zombie.zombie_horde.remove(zombie_rect)
                                 break
 
@@ -219,19 +220,19 @@ class PyGameGUI:
         GUI_text = list()
         text_rects = list()
         text_y_value = 125
-        with open('Images/Johnaton Bullock Resume.txt') as file:
+        with open('../Images/Johnaton Bullock Resume.txt') as file:
             f_contents = file.readlines()
             for line in f_contents:
                 text_list.append(line.strip('\n'))
 
-            resume_text_font = pygame.font.Font("Fonts/Purl.ttf", 18)
+            resume_text_font = pygame.font.Font("../Fonts/Purl.ttf", 18)
             for text in text_list:
                 resume_text = resume_text_font.render(text, True, (0,0,0))
                 text_rect = resume_text.get_rect(midtop=(450, text_y_value))
                 GUI_text.append(resume_text)
                 text_rects.append(text_rect)
                 text_y_value += 13
-            scroll_image = pygame.image.load('Images/scroll_pixel.png').convert_alpha()
+            scroll_image = pygame.image.load('../Images/scroll_pixel.png').convert_alpha()
             scroll_image = pygame.transform.scale(scroll_image, (650, 900))
             scroll_rect = scroll_image.get_rect(midtop=(450, 0))
 

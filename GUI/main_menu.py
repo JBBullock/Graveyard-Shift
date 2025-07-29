@@ -14,9 +14,9 @@ class MainMenu:
         self.quit_button = None
     """This creates the main menu screen"""
     def menu_load_up(self):
-        title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
+        title_font = pygame.font.Font('../Fonts/KiwiSoda.ttf', 50)
         pygame.display.set_caption("Main Menu")
-        self.menu_surface = pygame.image.load('Images/Graveyard.png').convert()
+        self.menu_surface = pygame.image.load('../Images/Graveyard.png').convert()
         pygame.transform.scale(self.menu_surface, (900, 900))
         self.title = title_font.render("Graveyard Shift", True, "#b68f40")
         self.author_title = title_font.render("Johnaton Bullock", True, "#b68f40")
@@ -26,8 +26,8 @@ class MainMenu:
 
     """The menu options, made into buttons, one starts and the other quits the game"""
     def menu_options(self, mouse_position):
-        title_font = pygame.font.Font('Fonts/KiwiSoda.ttf', 50)
-        start_image = pygame.image.load("Images/Start.png").convert()
+        title_font = pygame.font.Font('../Fonts/KiwiSoda.ttf', 50)
+        start_image = pygame.image.load("../Images/Start.png").convert()
         # print(start_image.get_alpha())
         self.play_button = Button((450, 500), "Start", title_font, base_color="White", hovering_color="Gold")
         self.quit_button = Button((450, 550), "Quit", title_font, base_color="White", hovering_color="Gold")
