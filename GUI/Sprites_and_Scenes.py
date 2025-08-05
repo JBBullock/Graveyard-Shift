@@ -1,3 +1,4 @@
+
 import pygame
 from random import randint
 
@@ -9,6 +10,7 @@ class GameScreen:
         self.canvas.fill("Black")
         self.canvas.set_alpha(0)
         self.arena = pygame.image.load("../Images/arena-shift.png").convert_alpha()
+        self.arena_level_two = pygame.image.load("../Images/Level2GS.png").convert_alpha()
         pygame.display.set_caption("Graveyard Shift")
 
         self.title_font = pygame.font.Font('../Fonts/KiwiSoda.ttf', 50)
@@ -17,6 +19,53 @@ class GameScreen:
         self.menu_tunnel = self.title_font.render("Main Menu", True, "White")
         self.portfolio_tunnel = self.title_font.render("Portfolio", True, "White")
         self.game_setting = pygame.image.load('../Images/Platform.png').convert()
+        self.ammo_img_list = list()
+        self.ammo_png = pygame.image.load('../Images/tankammo.png').convert_alpha()
+        self.ammo_png = pygame.transform.scale(self.ammo_png, (100, 100))
+        self.ammo_png = pygame.transform.rotate(self.ammo_png, 90)
+
+        self.level_one = True
+        self.level_two = False
+
+        self.ammo_append()
+
+        self.zombies_killed_score = 0
+        self.tank_ammo = 0
+        self.temple_health = 100
+        self.current_temple_health = 100
+
+        self.kill_plus_one = False
+        self.level_up_amount = 5
+
+    def score_update(self):
+        if self.kill_plus_one is True:
+            self.zombies_killed_score += 1
+            self.kill_plus_one = False
+
+        kill_score = self.title_font.render(f'{self.zombies_killed_score} / {self.level_up_amount}', True, "White")
+        return kill_score
+
+    def draw_health_bar(self, surface, x, y, width=200, height=20):
+        # Background (red)
+        pygame.draw.rect(surface, (255, 0, 0), (x, y, width, height))
+
+        # Foreground (green)
+        health_ratio = self.current_temple_health / self.temple_health
+        green_width = int(width * health_ratio)
+        pygame.draw.rect(surface, (0, 255, 0), (x, y, green_width, height))
+
+        # Border
+        pygame.draw.rect(surface, (255, 255, 255), (x, y, width, height), 2)
+
+
+    def ammo_append(self):
+        total_bullets = 5
+        if self.level_one:
+            for i in range(total_bullets):
+                self.ammo_img_list.append(self.ammo_png)
+        else:
+            for i in range(total_bullets - 1):
+                self.ammo_img_list.append(self.ammo_png)
 
     def gaming_scene(self):
 
@@ -37,7 +86,6 @@ class GameScreen:
 
     def gaming_fade_in(self):
 
-        alpha = self.canvas.get_alpha()
         alpha = min(255, self.canvas.get_alpha() + 3)
 
         self.canvas.set_alpha(alpha)
@@ -46,8 +94,21 @@ class GameScreen:
         return alpha >= 255
 
     def game_arena(self):
+        pygame.display.set_caption("Lvl. 1")
         self.screen.fill((0, 0, 0))
         self.screen.blit(pygame.transform.scale(self.arena, (900, 900)), (0, 0))
+        self.screen.blit(self.score_update(), (800,0))
+
+        self.draw_health_bar(self.screen, 350, 175)
+        ammo_pos = 0
+        for ammo in self.ammo_img_list:
+            self.screen.blit(ammo, (ammo_pos, 0))
+            ammo_pos += 30
+    def game_arena_level_two(self):
+        pygame.display.set_caption("Lvl. 2")
+        self.screen.fill((0, 0, 0))
+
+
 
 
 class TankSprite(GameScreen, pygame.sprite.Sprite):
@@ -105,7 +166,6 @@ class TankSprite(GameScreen, pygame.sprite.Sprite):
         tank_rect = self.tank.get_rect(center = (self.x, self.y))
         self.screen.blit(self.tank, tank_rect)
     def fire_bullet(self):
-        tank_rect = self.tank.get_rect(center=(self.x, self.y))
         direction = self.flip
         x, y = self.sprite_coords()
 
@@ -129,7 +189,7 @@ class TankSprite(GameScreen, pygame.sprite.Sprite):
 
 class ZombieSprite(GameScreen, pygame.sprite.Sprite):
 
-    def __init__(self, game_display):
+    def __init__(self, game_display, game_screen_obj):
         super().__init__(game_display)
         self.spawn_timer = 100
         self.spawn_event = pygame.USEREVENT + 1
@@ -141,10 +201,12 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
         self.zombie_step = pygame.image.load("../Images/WalkZombie.png").convert_alpha()
         self.zombie_step = pygame.transform.scale(self.zombie_step, (50, 50))
         self.zombie_index = 0
+        self.world_game = game_screen_obj
 
         self.walk = [self.zombie_image, self.zombie_step]
         self.spawn_delay = 60
         self.spawn_counter = 0
+
 
     def zombie_sprite(self):
         zombie_start_x = randint(400, 500)
@@ -178,8 +240,12 @@ class ZombieSprite(GameScreen, pygame.sprite.Sprite):
             zombie_rectangle.y -= float(0.7)
             if zombie_rectangle.y > 375:
                 updated_horde.append(zombie_rectangle)
+            else:
+                self.world_game.current_temple_health -= 25
+
             self.screen.blit(self.zombie_image, zombie_rectangle)
         self.zombie_horde = updated_horde
+
 
 
 
