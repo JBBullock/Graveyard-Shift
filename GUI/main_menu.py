@@ -1,4 +1,3 @@
-from platform import win32_is_iot
 
 import pygame
 from Buttons import Button
